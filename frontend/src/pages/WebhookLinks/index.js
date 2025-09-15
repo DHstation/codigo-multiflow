@@ -93,6 +93,7 @@ const useStyles = makeStyles((theme) => ({
     wordBreak: "break-all",
     fontSize: "0.875rem",
     fontFamily: "monospace",
+    color: "#333333",
   },
   searchField: {
     marginBottom: theme.spacing(2),
