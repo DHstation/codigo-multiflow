@@ -497,7 +497,7 @@ const WebhookLinks = () => {
                   <IconButton
                     size="small"
                     onClick={() => copyToClipboard(selectedWebhook.webhookUrl)}
-                    style={{ color: "white" }}
+                    style={{ color: "#333333" }}
                   >
                     <CopyIcon />
                   </IconButton>

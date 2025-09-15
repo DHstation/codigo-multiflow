@@ -64,7 +64,9 @@ export const extractVariables = (platform: string, payload: any): StandardizedPa
 export const determineEventType = (platform: string, payload: any): string => {
   switch (platform.toLowerCase()) {
     case 'kiwify':
-      return payload.webhook_event_type || 'unknown';
+      // A Kiwify pode enviar o evento diretamente ou dentro de order
+      const order = payload.order || payload;
+      return order.webhook_event_type || payload.webhook_event_type || 'unknown';
     case 'hotmart':
       return payload.event || payload.action || 'unknown';
     case 'braip':
@@ -85,42 +87,50 @@ export const determineEventType = (platform: string, payload: any): string => {
 
 // KIWIFY
 const extractKiwifyVariables = (payload: any): StandardizedPaymentData => {
+  // A Kiwify pode enviar os dados diretamente no payload ou dentro de payload.order
+  // Vamos verificar ambos os casos para manter compatibilidade
+  const order = payload.order || payload;
+  const customer = order.Customer || payload.Customer || {};
+  const product = order.Product || payload.Product || {};
+  const commissions = order.Commissions || payload.Commissions || {};
+
   return {
     // Dados do cliente
-    customer_name: payload.Customer?.full_name || payload.Customer?.first_name || '',
-    customer_email: payload.Customer?.email || '',
-    customer_phone: payload.Customer?.mobile || '',
-    customer_cpf: payload.Customer?.CPF || '',
-    customer_first_name: payload.Customer?.first_name || '',
-    
+    customer_name: customer.full_name || customer.first_name || '',
+    customer_email: customer.email || '',
+    customer_phone: customer.mobile || '',
+    customer_cpf: customer.CPF || '',
+    customer_first_name: customer.first_name || '',
+
     // Produto
-    product_name: payload.Product?.product_name || '',
-    product_id: payload.Product?.product_id || '',
-    
+    product_name: product.product_name || '',
+    product_id: product.product_id || '',
+
     // Transação
-    transaction_id: payload.order_id || '',
-    transaction_amount: String(payload.Commissions?.charge_amount || ''),
-    transaction_status: payload.order_status || '',
-    transaction_date: payload.created_at || new Date().toISOString(),
-    payment_method: payload.payment_method || '',
-    
+    transaction_id: order.order_id || '',
+    transaction_amount: String(commissions.charge_amount || ''),
+    transaction_status: order.order_status || '',
+    transaction_date: order.created_at || order.approved_date || new Date().toISOString(),
+    payment_method: order.payment_method || '',
+
     // Específicos Kiwify
-    event_type: payload.webhook_event_type || '',
-    currency: payload.Commissions?.currency || 'BRL',
+    event_type: order.webhook_event_type || '',
+    currency: commissions.currency || 'BRL',
     platform: 'kiwify',
-    access_url: payload.access_url || '',
-    
+    access_url: order.access_url || '',
+
     // PIX
-    pix_code: payload.pix_code || '',
-    pix_expiration: payload.pix_expiration || '',
-    
+    pix_code: order.pix_code || '',
+    pix_expiration: order.pix_expiration || '',
+
     // Boleto
-    boleto_url: payload.boleto_URL || '',
-    boleto_barcode: payload.boleto_barcode || '',
-    
+    boleto_url: order.boleto_URL || '',
+    boleto_barcode: order.boleto_barcode || '',
+    boleto_expiry_date: order.boleto_expiry_date || '',
+
     // Comissão
-    commission_amount: String(payload.Commissions?.my_commission || ''),
-    
+    commission_amount: String(commissions.my_commission || ''),
+
     // Debug
     payload_original: JSON.stringify(payload)
   };
