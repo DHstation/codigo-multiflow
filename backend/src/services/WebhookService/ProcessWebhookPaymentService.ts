@@ -9,6 +9,7 @@ import CreateContactService from "../ContactServices/CreateContactService";
 import CreateTicketServiceWebhook from "../TicketServices/CreateTicketServiceWebhook";
 import GetDefaultWhatsApp from "../../helpers/GetDefaultWhatsApp";
 import logger from "../../utils/logger";
+import { normalizePhoneForWhatsApp } from "../../utils/phoneNormalizer";
 
 // Declaração global para flowVariables
 declare global {
@@ -98,13 +99,10 @@ const ProcessWebhookPaymentService = async ({
     
     if (variables.customer_phone && variables.customer_phone.length >= 10) {
       try {
-        // Limpar número de telefone (remover caracteres especiais)
-        const cleanPhone = variables.customer_phone.replace(/\D/g, '');
+        // Normalizar número de telefone para formato WhatsApp brasileiro
+        const phoneNumber = normalizePhoneForWhatsApp(variables.customer_phone);
 
-        // Adicionar código do país se não tiver
-        const phoneNumber = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
-
-        logger.info(`[WEBHOOK PAYMENT] Procurando ou criando contato - Número: ${phoneNumber}, Nome: ${variables.customer_name || 'Cliente'}`);
+        logger.info(`[WEBHOOK PAYMENT] Procurando ou criando contato - Número original: ${variables.customer_phone}, Normalizado: ${phoneNumber}, Nome: ${variables.customer_name || 'Cliente'}`);
 
         // Primeiro tentar encontrar contato existente
         contact = await Contact.findOne({
@@ -226,8 +224,7 @@ const ProcessWebhookPaymentService = async ({
             try {
               let phoneNumber;
               if (variables.customer_phone) {
-                const cleanPhone = variables.customer_phone.replace(/\D/g, '');
-                phoneNumber = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
+                phoneNumber = normalizePhoneForWhatsApp(variables.customer_phone);
               } else {
                 phoneNumber = `55${Date.now()}`;
               }

@@ -4,6 +4,7 @@ import CompaniesSettings from "../../models/CompaniesSettings";
 import Contact from "../../models/Contact";
 import ContactCustomField from "../../models/ContactCustomField";
 import ContactWallet from "../../models/ContactWallet";
+import { normalizePhoneForWhatsApp } from "../../utils/phoneNormalizer";
 
 interface ExtraInfo {
   name: string;
@@ -43,12 +44,15 @@ const CreateContactService = async ({
   wallets
 }: Request): Promise<Contact> => {
 
-  console.log('number', number)
+  // Normalizar número de telefone para formato WhatsApp brasileiro
+  const normalizedNumber = normalizePhoneForWhatsApp(number);
+
+  console.log('number original:', number)
+  console.log('number normalizado:', normalizedNumber)
   console.log('remoteJid', remoteJid)
 
-
   const numberExists = await Contact.findOne({
-    where: { number, companyId }
+    where: { number: normalizedNumber, companyId }
   });
   
   if (numberExists) {
@@ -82,7 +86,7 @@ const CreateContactService = async ({
   const contact = await Contact.create(
     {
       name,
-      number,
+      number: normalizedNumber, // Usar número normalizado
       email,
       birthDate: processedBirthDate, // 🎂 INCLUIR NO CREATE
       acceptAudioMessage: acceptAudioMessageContact,
