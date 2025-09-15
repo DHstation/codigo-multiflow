@@ -1,3 +1,5 @@
+import { normalizePhoneForWhatsApp } from "./phoneNormalizer";
+
 interface StandardizedPaymentData {
   // Dados básicos do cliente
   customer_name: string;
@@ -180,10 +182,14 @@ const extractHotmartVariables = (payload: any): StandardizedPaymentData => {
 
 // BRAIP
 const extractBraipVariables = (payload: any): StandardizedPaymentData => {
+  // Normalizar telefone da Braip
+  const rawPhone = payload.client_cel || payload.client_phone || '';
+  const normalizedPhone = rawPhone ? normalizePhoneForWhatsApp(rawPhone) : '';
+
   return {
     customer_name: payload.client_name || '',
     customer_email: payload.client_email || '',
-    customer_phone: payload.client_cel || payload.client_phone || '',
+    customer_phone: normalizedPhone,
     customer_cpf: payload.client_document || '',
     customer_first_name: (payload.client_name || '').split(' ')[0],
     
@@ -212,11 +218,16 @@ const extractMonetizzeVariables = (payload: any): StandardizedPaymentData => {
   const venda = payload.venda || {};
   const produto = payload.produto || {};
   const comprador = payload.comprador || {};
-  
+
+  // Corrigir problema crítico: NUNCA usar CPF como telefone
+  // Normalizar telefone da Monetizze
+  const rawPhone = comprador.telefone || '';
+  const normalizedPhone = rawPhone ? normalizePhoneForWhatsApp(rawPhone) : '';
+
   return {
     customer_name: comprador.nome || '',
     customer_email: comprador.email || '',
-    customer_phone: comprador.telefone || comprador.cnpj_cpf || '',
+    customer_phone: normalizedPhone,
     customer_cpf: comprador.cnpj_cpf || '',
     customer_first_name: (comprador.nome || '').split(' ')[0],
     
@@ -242,10 +253,14 @@ const extractMonetizzeVariables = (payload: any): StandardizedPaymentData => {
 
 // CACTO (CACTOPAY)
 const extractCactoVariables = (payload: any): StandardizedPaymentData => {
+  // Normalizar telefone do Cacto
+  const rawPhone = payload.customer?.phone || '';
+  const normalizedPhone = rawPhone ? normalizePhoneForWhatsApp(rawPhone) : '';
+
   return {
     customer_name: payload.customer?.name || '',
     customer_email: payload.customer?.email || '',
-    customer_phone: payload.customer?.phone || '',
+    customer_phone: normalizedPhone,
     customer_cpf: payload.customer?.cpf || '',
     customer_first_name: (payload.customer?.name || '').split(' ')[0],
     
@@ -277,10 +292,14 @@ const extractCactoVariables = (payload: any): StandardizedPaymentData => {
 
 // PERFECT PAY
 const extractPerfectPayVariables = (payload: any): StandardizedPaymentData => {
+  // Normalizar telefone do Perfect Pay
+  const rawPhone = payload.customer_phone || '';
+  const normalizedPhone = rawPhone ? normalizePhoneForWhatsApp(rawPhone) : '';
+
   return {
     customer_name: payload.customer_name || '',
     customer_email: payload.customer_email || '',
-    customer_phone: payload.customer_phone || '',
+    customer_phone: normalizedPhone,
     customer_cpf: payload.customer_doc || '',
     customer_first_name: (payload.customer_name || '').split(' ')[0],
     
@@ -306,10 +325,14 @@ const extractPerfectPayVariables = (payload: any): StandardizedPaymentData => {
 
 // EDUZZ
 const extractEduzzVariables = (payload: any): StandardizedPaymentData => {
+  // Normalizar telefone da Eduzz
+  const rawPhone = payload.cus_tel || '';
+  const normalizedPhone = rawPhone ? normalizePhoneForWhatsApp(rawPhone) : '';
+
   return {
     customer_name: payload.cus_name || '',
     customer_email: payload.cus_email || '',
-    customer_phone: payload.cus_tel || '',
+    customer_phone: normalizedPhone,
     customer_cpf: payload.cus_taxnumber || '',
     customer_first_name: (payload.cus_name || '').split(' ')[0],
     
