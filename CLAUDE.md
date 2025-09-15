@@ -195,30 +195,68 @@ The platform includes a comprehensive webhook system for payment platform integr
 - **Multi-Platform Support**: 7 payment platforms supported (Kiwify, Hotmart, Braip, Monetizze, Cacto, Perfect Pay, Eduzz)
 - **Variable System**: Automatic extraction and injection of payment data into flows
 - **Logging & Monitoring**: Complete audit trail of webhook events
+- **Phone Normalization**: Brazilian phone number standardization for WhatsApp delivery
 
 ### Key Components
 
 #### Backend Services
 - **WebhookLink Model**: Manages webhook configurations and URLs
-- **PaymentDataExtractor**: Standardizes data from different payment platforms
-- **ProcessWebhookPaymentService**: Main webhook processing logic
+- **PaymentDataExtractor**: Standardizes data from different payment platforms with Brazilian phone normalization
+- **ProcessWebhookPaymentService**: Main webhook processing logic with contact management
+- **PhoneNormalizer Utility**: Brazilian phone number formatting for WhatsApp compatibility
 - **Global Variables**: Payment data injected into `global.flowVariables` for flow usage
+
+#### Phone Number Handling
+- **Brazilian Standards**: Automatic DDD-based formatting (interior vs capital regions)
+- **WhatsApp Format**: Ensures 12-digit format (55 + DDD + number)
+- **Regional Rules**: DDD ≤30 (interior) requires 9-digit mobile, DDD >30 (capital) uses 8-digit mobile
+- **Validation**: Prevents invalid numbers and delivery failures
+- **Cross-Platform**: Consistent normalization across all payment platforms
 
 #### Frontend Interface
 - **Webhook Links Page**: Complete CRUD interface for webhook management
 - **Variable Selector**: Component for selecting payment variables in Flow Builder
 - **Statistics Dashboard**: Monitoring webhook usage and success rates
 
+### Supported Payment Platforms
+
+| Platform | Phone Normalization | Data Extraction | Special Notes |
+|----------|-------------------|-----------------|---------------|
+| **Kiwify** | ✅ Implemented | ✅ Fixed payload structure | Handles nested order data |
+| **Hotmart** | ❌ Manual construction | ✅ Working | Combines phone_code + phone |
+| **Braip** | ✅ Implemented | ✅ Working | Uses client_cel/client_phone |
+| **Monetizze** | ✅ Implemented | ✅ Fixed critical bug | Removed CPF fallback for phone |
+| **Cacto** | ✅ Implemented | ✅ Working | Customer object structure |
+| **Perfect Pay** | ✅ Implemented | ✅ Working | Direct customer_phone field |
+| **Eduzz** | ✅ Implemented | ✅ Working | Uses cus_tel field |
+
 ### Variable Formats
 - **Webhook Variables**: `${variable_name}` format for payment data
 - **System Variables**: `{{variable_name}}` format for platform data
 - **Available Data**: Customer info, product details, transaction data, payment methods
+- **Normalized Data**: All phone numbers in WhatsApp-compatible format
+
+### Phone Number Examples
+```typescript
+// Input examples and normalized outputs:
+"11999999999" → "551199999999" (São Paulo - capital, remove extra 9)
+"27988888888" → "5527988888888" (Vitória - interior, keep 9)
+"1199999999" → "551199999999" (São Paulo - missing 9 added)
+"2788888888" → "5527988888888" (Vitória - 9 added for mobile)
+```
 
 ### Usage Flow
 1. Create webhook link in admin panel
 2. Configure webhook URL in payment platform
 3. Payment events trigger associated Flow Builder
-4. Variables automatically available in flow messages
-5. Complete automation of payment-based communications
+4. Phone numbers automatically normalized for Brazilian WhatsApp
+5. Variables automatically available in flow messages
+6. Complete automation of payment-based communications
+
+### Recent Improvements
+- **Critical Bug Fix**: Monetizze no longer uses CPF as phone number fallback
+- **Phone Normalization**: 6 of 7 platforms now use Brazilian phone standardization
+- **Contact Management**: Automatic contact creation with normalized phone numbers
+- **Error Prevention**: Invalid phone numbers no longer cause WhatsApp delivery failures
 
 For detailed implementation information, see `WEBHOOK_SYSTEM_IMPLEMENTATION.md`.
