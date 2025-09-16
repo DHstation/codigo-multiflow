@@ -62,6 +62,9 @@ import WhatsappLidMap from "../models/WhatsapplidMap";
 import Plantao from "../models/Plantao";
 import WebhookLink from "../models/WebhookLink";
 import WebhookLinkLog from "../models/WebhookLinkLog";
+import EmailTemplate from "../models/EmailTemplate";
+import EmailWebhookLink from "../models/EmailWebhookLink";
+import EmailWebhookLog from "../models/EmailWebhookLog";
 
 // eslint-disable-next-line
 const dbConfig = require("../config/database");
@@ -132,6 +135,9 @@ const models = [
   Plantao,
   WebhookLink,
   WebhookLinkLog,
+  EmailTemplate,
+  EmailWebhookLink,
+  EmailWebhookLog,
 ];
 
 sequelize.addModels(models);
