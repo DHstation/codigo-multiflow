@@ -10,6 +10,8 @@ export interface MailData {
 export async function SendMail(mailData: MailData) {
   const options: any = {
     host: process.env.MAIL_HOST,
+    port: parseInt(process.env.MAIL_PORT || '465'),
+    secure: process.env.MAIL_PORT === '465', // true for 465, false for other ports
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS

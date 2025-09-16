@@ -3,6 +3,7 @@ import EmailWebhookLink from "../models/EmailWebhookLink";
 import EmailWebhookLog from "../models/EmailWebhookLog";
 import EmailTemplate from "../models/EmailTemplate";
 import { extractVariables, determineEventType } from "../utils/PaymentDataExtractor";
+import { SendMail } from "../helpers/SendMail";
 import logger from "../utils/logger";
 
 export const receiveEmailWebhook = async (req: Request, res: Response): Promise<Response> => {
@@ -115,11 +116,64 @@ export const receiveEmailWebhook = async (req: Request, res: Response): Promise<
 
     // 7. Agendar ou enviar email imediatamente
     if (webhook.delayType === 'immediate') {
-      // TODO: Implementar envio imediato de email
-      logger.info(`[EMAIL WEBHOOK] Email agendado para envio imediato - Log ID: ${webhookLog.id}`);
+      // Enviar email imediatamente
+      try {
+        await SendMail({
+          to: extractedVariables.customer_email,
+          subject: emailSubject,
+          html: emailContent
+        });
+
+        // Atualizar log como enviado
+        await webhookLog.update({
+          emailStatus: 'sent',
+          sentAt: new Date()
+        });
+
+        // Incrementar contador de emails enviados
+        await webhook.update({
+          emailsSent: webhook.emailsSent + 1
+        });
+
+        logger.info(`[EMAIL WEBHOOK] Email enviado imediatamente para ${extractedVariables.customer_email} - Log ID: ${webhookLog.id}`);
+      } catch (emailError) {
+        logger.error(`[EMAIL WEBHOOK] Erro ao enviar email - Log ID: ${webhookLog.id} - Erro: ${emailError.message}`);
+
+        await webhookLog.update({
+          emailStatus: 'failed',
+          errorMessage: emailError.message
+        });
+      }
     } else {
-      // TODO: Implementar sistema de agendamento
+      // TODO: Implementar sistema de agendamento com Bull Queue ou similar
       logger.info(`[EMAIL WEBHOOK] Email agendado para ${scheduledFor.toISOString()} - Log ID: ${webhookLog.id}`);
+
+      // Por enquanto, enviar imediatamente mesmo com delay (pode implementar fila depois)
+      try {
+        await SendMail({
+          to: extractedVariables.customer_email,
+          subject: emailSubject,
+          html: emailContent
+        });
+
+        await webhookLog.update({
+          emailStatus: 'sent',
+          sentAt: new Date()
+        });
+
+        await webhook.update({
+          emailsSent: webhook.emailsSent + 1
+        });
+
+        logger.info(`[EMAIL WEBHOOK] Email com delay enviado para ${extractedVariables.customer_email} - Log ID: ${webhookLog.id}`);
+      } catch (emailError) {
+        logger.error(`[EMAIL WEBHOOK] Erro ao enviar email agendado - Log ID: ${webhookLog.id} - Erro: ${emailError.message}`);
+
+        await webhookLog.update({
+          emailStatus: 'failed',
+          errorMessage: emailError.message
+        });
+      }
     }
 
     // 8. Atualizar estatísticas do webhook
