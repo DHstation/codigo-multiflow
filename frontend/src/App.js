@@ -10,9 +10,9 @@ import { ActiveMenuProvider } from "./context/ActiveMenuContext";
 import Favicon from "react-favicon";
 import { getBackendUrl } from "./config";
 import Routes from "./routes";
-import defaultLogoLight from "./assets/logo.png";
-import defaultLogoDark from "./assets/logo-black.png";
-import defaultLogoFavicon from "./assets/favicon.ico";
+import defaultLogoLight from "./assets/logo2.png";
+import defaultLogoDark from "./assets/logo2.png";
+import defaultLogoFavicon from "./assets/favicon.png";
 import useSettings from "./hooks/useSettings";
 
 import "./styles/animations.css";

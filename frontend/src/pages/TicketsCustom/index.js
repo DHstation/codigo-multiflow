@@ -13,8 +13,8 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import api from "../../services/api";
 import { CircularProgress } from "@material-ui/core";
 import { getBackendUrl } from "../../config";
-import logo from "../../assets/logo.png";
-import logoDark from "../../assets/logo-black.png";
+import logo from "../../assets/logo2.png";
+import logoDark from "../../assets/logo2.png";
 
 const defaultTicketsManagerWidth = 550;
 const minTicketsManagerWidth = 404;

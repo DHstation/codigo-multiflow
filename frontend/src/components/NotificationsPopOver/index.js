@@ -25,7 +25,7 @@ import toastError from "../../errors/toastError";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import Favicon from "react-favicon";
 import { getBackendUrl } from "../../config";
-import defaultLogoFavicon from "../../assets/favicon.ico";
+import defaultLogoFavicon from "../../assets/favicon.png";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
 
 const useStyles = makeStyles(theme => ({

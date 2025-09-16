@@ -22,9 +22,9 @@ import ColorModeContext from "../../layout/themeContext";
 import api from "../../services/api";
 import { getBackendUrl } from "../../config";
 
-import defaultLogoLight from "../../assets/logo.png";
-import defaultLogoDark from "../../assets/logo-black.png";
-import defaultLogoFavicon from "../../assets/favicon.ico";
+import defaultLogoLight from "../../assets/logo2.png";
+import defaultLogoDark from "../../assets/logo2.png";
+import defaultLogoFavicon from "../../assets/favicon.png";
 import ColorBoxModal from "../ColorBoxModal/index.js";
 import Checkbox from "@material-ui/core/Checkbox";
 import { i18n } from "../../translate/i18n";
