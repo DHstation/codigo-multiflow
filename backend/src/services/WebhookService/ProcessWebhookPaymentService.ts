@@ -10,6 +10,10 @@ import CreateTicketServiceWebhook from "../TicketServices/CreateTicketServiceWeb
 import GetDefaultWhatsApp from "../../helpers/GetDefaultWhatsApp";
 import logger from "../../utils/logger";
 import { normalizePhoneForWhatsApp } from "../../utils/phoneNormalizer";
+import EmailSequence from "../../models/EmailSequence";
+import EmailSequenceStep from "../../models/EmailSequenceStep";
+import EmailTemplate from "../../models/EmailTemplate";
+import ProcessEmailSequenceService from "../EmailServices/ProcessEmailSequenceService";
 
 // Declaração global para flowVariables
 declare global {
@@ -312,8 +316,58 @@ const ProcessWebhookPaymentService = async ({
         throw error;
       }
     }
-    
-    // 10. Calcular tempo de processamento
+
+    // 10. Processar sequências de email configuradas
+    try {
+      const emailSequences = await EmailSequence.findAll({
+        where: {
+          webhookLinkId: webhookLink.id,
+          active: true
+        },
+        include: [
+          {
+            model: EmailSequenceStep,
+            as: "steps",
+            where: { active: true },
+            required: false,
+            include: [
+              {
+                model: EmailTemplate,
+                as: "template",
+                where: { active: true },
+                required: true
+              }
+            ]
+          }
+        ]
+      });
+
+      logger.info(`[WEBHOOK PAYMENT] Encontradas ${emailSequences.length} sequências de email ativas para webhook ${webhookLink.id}`);
+
+      for (const sequence of emailSequences) {
+        if (sequence.steps && sequence.steps.length > 0) {
+          try {
+            await ProcessEmailSequenceService({
+              sequence,
+              variables: extractedData,
+              triggerEvent: eventType
+            });
+
+            logger.info(`[WEBHOOK PAYMENT] Sequência de email ${sequence.name} processada com sucesso`);
+          } catch (emailError) {
+            logger.error(`[WEBHOOK PAYMENT] Erro ao processar sequência de email ${sequence.name}: ${emailError.message}`);
+            // Não falhar o webhook por erro de email
+          }
+        } else {
+          logger.warn(`[WEBHOOK PAYMENT] Sequência ${sequence.name} não possui steps ativos`);
+        }
+      }
+    } catch (error) {
+      logger.error(`[WEBHOOK PAYMENT] Erro ao buscar/processar sequências de email: ${error.message}`);
+      // Não falhar o webhook por erro de email
+    }
+
+    // 11. Calcular tempo de processamento
     const responseTimeMs = Date.now() - startTime;
     
     // 11. Salvar log

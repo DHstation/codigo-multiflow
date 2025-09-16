@@ -7,6 +7,7 @@ import logger from "./utils/logger";
 import { StartAllWhatsAppsSessions } from "./services/WbotServices/StartAllWhatsAppsSessions";
 import Company from "./models/Company";
 import BullQueue from './libs/queue';
+import EmailSchedulerService from './services/EmailServices/EmailSchedulerService';
 
 import { startQueueProcess } from "./queues";
 // import { ScheduledMessagesJob, ScheduleMessagesGenerateJob, ScheduleMessagesEnvioJob, ScheduleMessagesEnvioForaHorarioJob } from "./wbotScheduledMessages";
@@ -30,6 +31,15 @@ const server = app.listen(process.env.PORT, async () => {
 
   if (process.env.REDIS_URI_ACK && process.env.REDIS_URI_ACK !== '') {
     BullQueue.process();
+  }
+
+  // Iniciar scheduler de emails
+  try {
+    const emailScheduler = EmailSchedulerService.getInstance();
+    emailScheduler.start();
+    logger.info('[EMAIL SCHEDULER] Sistema de emails agendados iniciado');
+  } catch (error) {
+    logger.error(`[EMAIL SCHEDULER] Erro ao iniciar sistema de emails: ${error.message}`);
   }
 
   logger.info(`Server started on port: ${process.env.PORT}`);

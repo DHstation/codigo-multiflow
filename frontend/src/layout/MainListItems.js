@@ -39,6 +39,8 @@ import LocalAtmIcon from "@material-ui/icons/LocalAtm";
 import BusinessIcon from "@material-ui/icons/Business";
 import CakeIcon from "@material-ui/icons/Cake";
 import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
+import EmailIcon from "@material-ui/icons/Email";
+import PlaylistAddCheckIcon from "@material-ui/icons/PlaylistAddCheck";
 
 import {
   AllInclusive,
@@ -392,13 +394,19 @@ const MainListItems = ({ collapsed, drawerClose }) => {
 
   const [openFlowSubmenu, setOpenFlowSubmenu] = useState(false);
   const [flowHover, setFlowHover] = useState(false);
+  const [openEmailSubmenu, setOpenEmailSubmenu] = useState(false);
+  const [emailHover, setEmailHover] = useState(false);
 
   const { get: getSetting } = useCompanySettings();
   const [showWallets, setShowWallets] = useState(false);
 
   const isFlowbuilderRouteActive =
-    location.pathname.startsWith("/phrase-lists");
-  location.pathname.startsWith("/flowbuilders");
+    location.pathname.startsWith("/phrase-lists") ||
+    location.pathname.startsWith("/flowbuilders");
+
+  const isEmailRouteActive =
+    location.pathname.startsWith("/email-templates") ||
+    location.pathname.startsWith("/email-sequences");
 
   useEffect(() => {
     // INSERIR ESSE EFFECT INTEIRO
@@ -841,6 +849,64 @@ const MainListItems = ({ collapsed, drawerClose }) => {
           </Collapse>
         </>
       )}
+
+      {/* EMAIL MARKETING */}
+      <Tooltip
+        title={collapsed ? "Email Marketing" : ""}
+        placement="right"
+      >
+        <ListItem
+          dense
+          button
+          onClick={() => setOpenEmailSubmenu((prev) => !prev)}
+          onMouseEnter={() => setEmailHover(true)}
+          onMouseLeave={() => setEmailHover(false)}
+        >
+          <ListItemIcon>
+            <Avatar
+              className={`${classes.iconHoverActive} ${
+                isEmailRouteActive || emailHover ? "active" : ""
+              }`}
+            >
+              <EmailIcon />
+            </Avatar>
+          </ListItemIcon>
+          <ListItemText
+            primary={
+              <Typography className={classes.listItemText}>
+                Email Marketing
+              </Typography>
+            }
+          />
+          {openEmailSubmenu ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </ListItem>
+      </Tooltip>
+      <Collapse
+        in={openEmailSubmenu}
+        timeout="auto"
+        unmountOnExit
+        style={{
+          backgroundColor:
+            theme.mode === "light"
+              ? "rgba(120,120,120,0.1)"
+              : "rgba(120,120,120,0.5)",
+        }}
+      >
+        <List dense component="div" disablePadding>
+          <ListItemLink
+            to="/email-templates"
+            primary="Templates de Email"
+            icon={<EmailIcon />}
+            tooltip={collapsed}
+          />
+          <ListItemLink
+            to="/email-sequences"
+            primary="Sequências de Email"
+            icon={<PlaylistAddCheckIcon />}
+            tooltip={collapsed}
+          />
+        </List>
+      </Collapse>
 
       {/* FLOWBUILDER */}
       {user.showFlow === "enabled" && (
