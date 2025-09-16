@@ -51,6 +51,7 @@ import FlowDefault from "../pages/FlowDefault";
 import CampaignsPhrase from "../pages/CampaignsPhrase";
 import { Plantao } from "../pages/Plantao";
 import WebhookLinks from "../pages/WebhookLinks";
+import EmailWebhooks from "../pages/EmailWebhooks";
 
 const Routes = () => {
   const [showCampaigns, setShowCampaigns] = useState(false);
@@ -212,6 +213,12 @@ const Routes = () => {
                   exact
                   path="/webhook-links"
                   component={WebhookLinks}
+                  isPrivate
+                />
+                <Route
+                  exact
+                  path="/email-webhooks"
+                  component={EmailWebhooks}
                   isPrivate
                 />
 

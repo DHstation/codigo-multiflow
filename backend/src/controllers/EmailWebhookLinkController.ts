@@ -5,7 +5,7 @@ import ShowEmailWebhookLinkService from "../services/EmailWebhookService/ShowEma
 import UpdateEmailWebhookLinkService from "../services/EmailWebhookService/UpdateEmailWebhookLinkService";
 import DeleteEmailWebhookLinkService from "../services/EmailWebhookService/DeleteEmailWebhookLinkService";
 
-export const createEmailWebhook = async (req: Request, res: Response): Promise<Response> => {
+export const createEmailWebhookLink = async (req: Request, res: Response): Promise<Response> => {
   const {
     name,
     description,
@@ -13,12 +13,13 @@ export const createEmailWebhook = async (req: Request, res: Response): Promise<R
     emailTemplateId,
     delayType,
     delayValue,
-    triggerEvents
+    triggerEvents,
+    active
   } = req.body;
   const { companyId } = req.user;
   const userId = parseInt(req.user.id);
 
-  const webhook = await CreateEmailWebhookLinkService({
+  const webhookLink = await CreateEmailWebhookLinkService({
     name,
     description,
     platform,
@@ -30,10 +31,10 @@ export const createEmailWebhook = async (req: Request, res: Response): Promise<R
     userId
   });
 
-  return res.status(201).json(webhook);
+  return res.status(201).json(webhookLink);
 };
 
-export const listEmailWebhooks = async (req: Request, res: Response): Promise<Response> => {
+export const listEmailWebhookLinks = async (req: Request, res: Response): Promise<Response> => {
   const { companyId } = req.user;
   const { searchParam, pageNumber } = req.query;
 
@@ -46,33 +47,33 @@ export const listEmailWebhooks = async (req: Request, res: Response): Promise<Re
   return res.status(200).json({ webhooks, count, hasMore });
 };
 
-export const showEmailWebhook = async (req: Request, res: Response): Promise<Response> => {
+export const showEmailWebhookLink = async (req: Request, res: Response): Promise<Response> => {
   const { webhookId } = req.params;
   const { companyId } = req.user;
 
-  const webhook = await ShowEmailWebhookLinkService({
+  const webhookLink = await ShowEmailWebhookLinkService({
     webhookId: parseInt(webhookId),
     companyId
   });
 
-  return res.status(200).json(webhook);
+  return res.status(200).json(webhookLink);
 };
 
-export const updateEmailWebhook = async (req: Request, res: Response): Promise<Response> => {
+export const updateEmailWebhookLink = async (req: Request, res: Response): Promise<Response> => {
   const { webhookId } = req.params;
   const { companyId } = req.user;
   const updateData = req.body;
 
-  const webhook = await UpdateEmailWebhookLinkService({
+  const webhookLink = await UpdateEmailWebhookLinkService({
     webhookId: parseInt(webhookId),
     companyId,
     updateData
   });
 
-  return res.status(200).json(webhook);
+  return res.status(200).json(webhookLink);
 };
 
-export const deleteEmailWebhook = async (req: Request, res: Response): Promise<Response> => {
+export const deleteEmailWebhookLink = async (req: Request, res: Response): Promise<Response> => {
   const { webhookId } = req.params;
   const { companyId } = req.user;
 

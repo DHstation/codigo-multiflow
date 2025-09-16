@@ -39,6 +39,7 @@ import LocalAtmIcon from "@material-ui/icons/LocalAtm";
 import BusinessIcon from "@material-ui/icons/Business";
 import CakeIcon from "@material-ui/icons/Cake";
 import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
+import EmailIcon from "@material-ui/icons/Email";
 
 import {
   AllInclusive,
@@ -912,6 +913,13 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 to="/webhook-links"
                 primary={"Webhook Links"}
                 icon={<Webhook />}
+                tooltip={collapsed}
+              />
+
+              <ListItemLink
+                to="/email-webhooks"
+                primary={"Email Webhooks"}
+                icon={<EmailIcon />}
                 tooltip={collapsed}
               />
             </List>
